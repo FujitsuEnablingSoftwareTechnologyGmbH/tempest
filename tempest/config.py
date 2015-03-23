@@ -788,6 +788,24 @@ TelemetryGroup = [
 ]
 
 
+monitoring_group = cfg.OptGroup(name='monitoring',
+                               title='Monitoring Service Options')
+
+MonitoringGroup = [
+    cfg.StrOpt('catalog_type',
+               default='monitoring',
+               help="Catalog type of the Monitoring service."),
+    cfg.StrOpt('endpoint_type',
+               default='publicURL',
+               choices=['public', 'admin', 'internal',
+                        'publicURL', 'adminURL', 'internalURL'],
+               help="The endpoint type to use for the monitoring service."),
+    cfg.StrOpt('region',
+               default='',
+               help="The endpoint type to use for the monitoring service."),
+]
+
+
 dashboard_group = cfg.OptGroup(name="dashboard",
                                title="Dashboard options")
 
@@ -996,6 +1014,9 @@ ServiceAvailableGroup = [
     cfg.BoolOpt('zaqar',
                 default=False,
                 help="Whether or not Zaqar is expected to be available"),
+    cfg.BoolOpt('monasca',
+                default=True,
+                help="Whether or not monasca is expected to be available"),
 ]
 
 debug_group = cfg.OptGroup(name="debug",
@@ -1145,7 +1166,8 @@ _opts = [
     (baremetal_group, BaremetalGroup),
     (input_scenario_group, InputScenarioGroup),
     (cli_group, CLIGroup),
-    (negative_group, NegativeGroup)
+    (negative_group, NegativeGroup),
+    (monitoring_group, MonitoringGroup)
 ]
 
 
@@ -1214,6 +1236,7 @@ class TempestConfigPrivate(object):
                           group='identity')
         _CONF.set_default('alt_domain_name', self.identity.admin_domain_name,
                           group='identity')
+        self.monitoring = cfg.CONF.monitoring
 
     def __init__(self, parse_conf=True, config_path=None):
         """Initialize a configuration from a conf directory and conf file."""

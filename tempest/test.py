@@ -96,7 +96,8 @@ def get_service_list():
         'dashboard': CONF.service_available.horizon,
         'telemetry': CONF.service_available.ceilometer,
         'data_processing': CONF.service_available.sahara,
-        'database': CONF.service_available.trove
+        'database': CONF.service_available.trove,
+        'monitoring' : CONF.service_available.monasca
     }
     return service_list
 
@@ -110,7 +111,7 @@ def services(*args, **kwargs):
     def decorator(f):
         services = ['compute', 'image', 'baremetal', 'volume', 'orchestration',
                     'network', 'identity', 'object_storage', 'dashboard',
-                    'telemetry', 'data_processing', 'database']
+                    'telemetry', 'data_processing', 'database', 'monitoring']
         for service in args:
             if service not in services:
                 raise exceptions.InvalidServiceTag('%s is not a valid '
