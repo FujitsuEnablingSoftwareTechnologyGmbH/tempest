@@ -399,6 +399,7 @@ class MonitoringClientJSON(service_client.ServiceClient):
         m_start_time = kwargs.get('start_time', default_starttime)
         m_end_time = kwargs.get('end_time', None)
         m_limit = kwargs.get('limit', None)
+        m_merge_metrics = kwargs.get('merge_metrics', None)
         url += '?start_time=' + m_start_time
         if m_name is not None:
             url += '&name=' + m_name
@@ -414,6 +415,8 @@ class MonitoringClientJSON(service_client.ServiceClient):
             url += '&end_time=' + m_end_time
         if m_limit is not None:
             url += '&limit=' + m_limit
+        if m_merge_metrics is not None:
+            url += '&merge_metrics=' + m_merge_metrics
         resp, body = self.get(url)
         return service_client.ResponseBodyData(resp, body)
 
@@ -428,6 +431,7 @@ class MonitoringClientJSON(service_client.ServiceClient):
         m_end_time = kwargs.get('end_time', None)
         m_statistics = kwargs.get('statistics', None)
         m_period = kwargs.get('period', 300)
+        m_merge_metrics = kwargs.get('merge_metrics', None)
         url += '?name=' + m_name + '&statistics=' + m_statistics + '&start_time=' + m_start_time
         if m_dimension is not None:
             keylist = m_dimension.keys()
@@ -441,6 +445,8 @@ class MonitoringClientJSON(service_client.ServiceClient):
             url += '&end_time=' + m_end_time
         if m_period is not None:
             url += '&period=' + str(m_period)
+        if m_merge_metrics is not None:
+            url += '&merge_metrics=' + m_merge_metrics
         resp, body = self.get(url)
         return service_client.ResponseBodyData(resp, body)
 
