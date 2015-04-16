@@ -33,7 +33,7 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
         self.assertEqual('204', body.response['status'])
         # Get metric statistics
         m_statistics = 'AVG'
-        body = self.monitoring_client.metric_statistics(name=m_name,statistics=m_statistics)
+        body = self.monitoring_client.metric_statistics(name=m_name, statistics=m_statistics, merge_metrics="true")
         self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")

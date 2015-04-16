@@ -27,14 +27,14 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_measurement_default(self):
         # List metric measurement with default parameter (start_time)
-        body = self.monitoring_client.metric_measurement()
+        body = self.monitoring_client.metric_measurement(merge_metrics="true")
         self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")
     def test_measurement_metricname(self):
         # Get version 
         metric_name = 'cpu.user_perc'
-        body = self.monitoring_client.metric_measurement(name=metric_name)
+        body = self.monitoring_client.metric_measurement(name=metric_name, merge_metrics="true")
         self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")
@@ -43,7 +43,7 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
         current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         current_time = current_time.replace(' ', 'T') + 'Z'
         m_limit = 2
-        body = self.monitoring_client.metric_measurement(end_time=current_time, limit=str(m_limit))
+        body = self.monitoring_client.metric_measurement(end_time=current_time, limit=str(m_limit), merge_metrics="true")
         self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")
