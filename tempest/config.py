@@ -802,7 +802,7 @@ MonitoringGroup = [
                help="The endpoint type to use for the monitoring service."),
     cfg.StrOpt('region',
                default='',
-               help="The endpoint type to use for the monitoring service."),
+               help="The endpoint type to use for the monitoring service.")
 ]
 
 
@@ -1236,7 +1236,7 @@ class TempestConfigPrivate(object):
                           group='identity')
         _CONF.set_default('alt_domain_name', self.identity.admin_domain_name,
                           group='identity')
-        self.monitoring = cfg.CONF.monitoring
+        self.monitoring = _CONF.monitoring
 
     def __init__(self, parse_conf=True, config_path=None):
         """Initialize a configuration from a conf directory and conf file."""

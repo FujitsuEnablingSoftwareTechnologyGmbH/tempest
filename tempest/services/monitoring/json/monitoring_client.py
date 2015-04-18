@@ -20,59 +20,20 @@ from tempest.common import service_client
 
 from tempest import config
 from oslo_serialization import jsonutils as json
-# from tempest.openstack.common import jsonutils as json
-# import tempest.services.monitoring.monitoring_client_base as client
 
 CONF = config.CONF
 
 class MonitoringClientJSON(service_client.ServiceClient):
 
-    def __init__(self, auth_provider):
-        super(MonitoringClientJSON, self).__init__(
-            auth_provider,
-            CONF.monitoring.catalog_type,
-            CONF.identity.region,
-            endpoint_type=CONF.monitoring.endpoint_type)
-        self.version = '2.0'
-        self.uri_prefix = "v%s" % self.version
+    version = '2.0'
+    uri_prefix = "v%s" % version
 
-    # def get_rest_client(self, auth_provider):
-    #     return service_client.RestClient(auth_provider)
 
     def deserialize(self, body):
         return json.loads(body.replace("\n", ""))
 
     def serialize(self, body):
         return json.dumps(body)
-
-    # def post_resource(self, uri, body):
-    #     body = self.serialize(body)
-    #     resp, body = self.post(uri, body)
-    #     body = self.deserialize(body)
-    #     return resp, body
-
-    # def put(self, uri, body):
-    #     body = self.serialize(body)
-    #     resp, body = self.put(uri, body)
-    #     body = self.deserialize(body)
-    #     return resp, body
-
-    # def get(self, uri):
-    #     resp, body = self.get(uri)
-    #     body = self.deserialize(body)
-    #     return resp, body
-
-    # def delete(self, uri):
-    #     resp, body = self.delete(uri)
-    #     if body:
-    #         body = self.deserialize(body)
-    #     return resp, body
-
-    # def patch(self, uri, body):
-    #     body = self.serialize(body)
-    #     resp, body = self.patch(uri, body)
-    #     body = self.deserialize(body)
-    #     return resp, body
 
     def helper_list(self, uri, query=None, period=None):
         uri_dict = {}
@@ -273,14 +234,6 @@ class MonitoringClientJSON(service_client.ServiceClient):
         """Update a notification."""
         url = '/notification-methods/' + notification_id
         body = self.serialize(kwargs)
-        # notification_name = kwargs.get('name', None)
-        # address = kwargs.get('address', None)
-        # post_body = {
-        #     'name': notification_name,
-        #     'type': notification_type,
-        #     'address': address
-        # }
-        # post_body = json.dumps(post_body)
         resp, body = self.put(url, body)
         self.expected_success(200, resp.status)
         body = self.deserialize(body)
@@ -290,14 +243,6 @@ class MonitoringClientJSON(service_client.ServiceClient):
         """Update a notification."""
         url = '/notification-methods/' + notification_id
         body = self.serialize(kwargs)
-        # notification_name = kwargs.get('name', None)
-        # notification_type = kwargs.get('type', None)
-        # post_body = {
-        #     'name': notification_name,
-        #     'type': notification_type,
-        #     'address': address
-        # }
-        # post_body = json.dumps(post_body)
         resp, body = self.put(url, body)
         self.expected_success(200, resp.status)
         body = self.deserialize(body)

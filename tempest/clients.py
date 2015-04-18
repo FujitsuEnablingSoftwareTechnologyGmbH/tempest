@@ -231,7 +231,11 @@ class Manager(manager.Manager):
         self.negative_client = negative_rest_client.NegativeRestClient(
             self.auth_provider, service, **self.default_params)
         self.monitoring_client = MonitoringClientJSON(
-            self.auth_provider)
+            self.auth_provider,
+            CONF.monitoring.catalog_type,
+            CONF.identity.region,
+            CONF.monitoring.endpoint_type,
+            **self.default_params)
 
         # Generating EC2 credentials in tempest is only supported
         # with identity v2

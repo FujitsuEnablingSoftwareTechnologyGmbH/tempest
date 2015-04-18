@@ -16,13 +16,10 @@ from tempest_lib.common.utils import data_utils
 from tempest_lib import exceptions as lib_exc
 
 from tempest import clients
-# from tempest.common import credentials
 from tempest import config
 from tempest import exceptions
-# from tempest.openstack.common import log as logging
 from tempest_lib.common.rest_client import logging
 
-# from tempest.openstack.common import timeutils
 from oslo_utils import timeutils
 import tempest.test
 
@@ -39,46 +36,12 @@ class BaseMonitoringTest(tempest.test.BaseTestCase):
     def resource_setup(cls):
         if not CONF.service_available.monasca:
              raise cls.skipException("Monasca support is required")
-        # cls.set_network_resources()
         super(BaseMonitoringTest, cls).resource_setup()
         cls._interface = 'json'
-        # cls.isolated_creds = credentials.get_isolated_credentials(
-        # cls.__name__, network_resources=cls.network_resources)
-
-        # March
         cls.os = clients.Manager()
 
-        # os = cls.get_client_manager()
-        # march
         cls.monitoring_client = cls.os.monitoring_client
-        # cls.servers_client = os.servers_client
-        # cls.flavors_client = os.flavors_client
-        # cls.image_client = os.image_client
-        # cls.image_client_v2 = os.image_client_v2
-        #
-        # cls.nova_notifications = ['memory', 'vcpus', 'disk.root.size',
-        #                           'disk.ephemeral.size']
-        #
-        # cls.glance_notifications = ['image.update', 'image.upload',
-        #                             'image.delete']
-        #
-        # cls.glance_v2_notifications = ['image.download', 'image.serve']
-        #
-        # cls.server_ids = []
-        # cls.alarm_ids = []
         cls.alarm_def_ids = []
-        # cls.image_ids = []
-
-    # @classmethod
-    # def setup_credentials(cls):
-    #     cls.set_network_resources()
-    #     super(BaseMonitoringTest, cls).setup_credentials()
-    #     cls.os = cls.get_client_manager()
-    #
-    # @classmethod
-    # def setup_clients(cls):
-    #     super(BaseMonitoringTest, cls).setup_clients()
-    #     cls.monitoring_client = cls.os.monitoring_client
 
 
     @classmethod
@@ -117,9 +80,6 @@ class BaseMonitoringTest(tempest.test.BaseTestCase):
     @classmethod
     def resource_cleanup(cls):
         cls.cleanup_resources(cls.monitoring_client.delete_alarm_definition, cls.alarm_def_ids)
-        # cls.cleanup_resources(cls.servers_client.delete_server, cls.server_ids)
-        # cls.cleanup_resources(cls.image_client.delete_image, cls.image_ids)
-        # cls.clear_isolated_creds()
         super(BaseMonitoringTest, cls).resource_cleanup()
 
     def await_samples(self, metric, query):
