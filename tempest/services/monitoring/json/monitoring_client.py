@@ -92,9 +92,34 @@ class MonitoringClientJSON(service_client.ServiceClient):
         self.expected_success(204, resp.status)
         return service_client.ResponseBody(resp, body)
 
-    def list_alarms(self, query=None):
+    def list_alarms(self, **kwargs):
         uri = '/alarms'
-        return self.helper_list(uri, query)
+        m_alarm_definition_id = kwargs.get('alarm_definition_id', None)
+        m_metric_name = kwargs.get('metric_name', None)
+        m_metric_dimensions = kwargs.get('metric_dimensions', None)
+        m_state = kwargs.get('state', None)
+        m_state_updated_start_time = kwargs.get('state_updated_start_time', None)
+        m_offset = kwargs.get('offset', None)
+        m_limit = kwargs.get('limit', None)
+        if m_alarm_definition_id is not None:
+            uri += '?alarm_definition_id=' + m_alarm_definition_id
+        if m_metric_name is not None:
+            uri += '?metric_name=' + m_metric_name
+        if m_metric_dimensions is not None:
+            uri += '?metric_dimensions=' + m_metric_dimensions
+        if m_state is not None:
+            uri += '?state=' + m_state
+        if m_state_updated_start_time is not None:
+            uri += '?state_updated_start_time=' + m_state_updated_start_time
+        if m_offset is not None:
+            uri += '?offset=' + m_offset
+        if m_limit is not None:
+            uri += '?limit=' + m_limit
+
+        resp, body = self.get(uri)
+        self.expected_success(200, resp.status)
+        body = self.deserialize(body)
+        return service_client.ResponseBody(resp, body)
 
     def get_alarm(self, alarm_id):
         uri = '/alarms/%s' % alarm_id

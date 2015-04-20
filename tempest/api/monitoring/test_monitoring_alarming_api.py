@@ -25,9 +25,9 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
     @classmethod
     def setUpClass(cls):
         super(MonitoringAlarmingAPITestJSON, cls).setUpClass()
-        # cls.rule = {'expression':'mem_total_mb > 0'}
+        # cls.rule = {'expression':'cpu.idle_perc > 0'}
         for i in range(1):
-            cls.create_alarm_definition(expression="avg(cpu.idle_perc{service=monitoring}) >= 10")
+            cls.create_alarm_definition(expression="cpu.idle_perc >= 10")
 
     @test.attr(type="gate")
     def test_alarm_definition_list(self):
@@ -44,33 +44,45 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                          ', '.join(str(a) for a in missing_alarms))
 
     @test.attr(type="gate")
-    def test_create_alarm_definition_without_notification(self):
+    def test_create_update_get_delete_alarm_without_notification(self):
         # Test to check if a new alarm definition is created
         # Create an alarm definition
-        alarm_def_name = data_utils.rand_name('monitoring_alarm_definition')
+        count = 0
+        alarm_def_name = data_utils.rand_name('test_monasca_alarm_definition')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name, expression="max(cpu.idle_perc) > 0")
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("max(cpu.idle_perc) > 0", body['expression'])
-        # Delete alarm and verify if deleted
-        self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        self.assertRaises(lib_exc.NotFound,
-                          self.monitoring_client.get_alarm_definition, alarm_def_id)
 
-    @test.attr(type="gate")
-    def test_get_alarm_definition(self):
-        # Test to check if an alarm definition with specific alarm definition id is listed
-        # Create an alarm definition
-        alarm_def_name = data_utils.rand_name('monitoring_alarm_definition')
-        body = self.monitoring_client.create_alarm_definition(name=alarm_def_name, expression="max(cpu.idle_perc) > 0")
-        self.assertEqual(alarm_def_name, body['name'])
-        alarm_def_id = body['id']
-        self.assertEqual("max(cpu.idle_perc) > 0", body['expression'])
         # Get and verify details of an alarm definition
         body = self.monitoring_client.get_alarm_definition(alarm_def_id)
         self.assertEqual(alarm_def_name, body['name'])
         self.assertEqual("max(cpu.idle_perc) > 0", body['expression'])
-        # Delete alarm defintion and verify if deleted
+        updated_alarm_def_name = data_utils.rand_name('test_monasca_alarm_definition')
+
+        # Update alarm definition
+        body = self.monitoring_client.update_alarm_definition(alarm_def_id,
+                                                              name=updated_alarm_def_name,
+                                                              expression="max(cpu.idle_perc) > 0",
+                                                              actions_enabled="true")
+        self.assertEqual(updated_alarm_def_name, body['name'])
+        alarm_def_id = body['id']
+
+        # List alarms based on alarm_definition_id
+        while count < 30 :
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
+        alarm_id = body['elements'][0]['id']
+        body = self.monitoring_client.update_alarm(alarm_id, state="UNDETERMINED")
+        self.assertEqual("UNDETERMINED", body['state'])
+        body = self.monitoring_client.get_alarm(alarm_id)
+        self.assertEqual("UNDETERMINED", body['state'])
+
+        # Delete alarm-definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
@@ -117,14 +129,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Create an alarm definition
         alarm_def_name = data_utils.rand_name('monitoring_alarm_definition')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="mem_total_mb > 0",
+                                                         expression="cpu.idle_perc > 0",
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
 
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
-        self.assertEqual("mem_total_mb > 0", body['expression'])
+        self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
@@ -160,14 +172,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Create an alarm definition
         alarm_def_name = data_utils.rand_name('monitoring_alarm_definition')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="mem_total_mb > 0",
+                                                         expression="cpu.idle_perc > 0",
                                                          alarm_actions = [notification_id1, notification_id2],
                                                          ok_actions = [notification_id1, notification_id2],
                                                          severity="LOW")
 
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
-        self.assertEqual("mem_total_mb > 0", body['expression'])
+        self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
@@ -238,14 +250,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Create an alarm definition
         alarm_def_name = data_utils.rand_name('monitoring_alarm_definition')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="avg(mem_total_mb{url=https://www.google.com}) gt 0",
+                                                         expression="avg(cpu.idle_perc{url=https://www.google.com}) gt 0",
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
 
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
-        self.assertEqual("avg(mem_total_mb{url=https://www.google.com}) gt 0", body['expression'])
+        self.assertEqual("avg(cpu.idle_perc{url=https://www.google.com}) gt 0", body['expression'])
 
         # Delete alarm and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
@@ -270,14 +282,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Create an alarm
         alarm_def_name = data_utils.rand_name('monitoring_alarm')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="avg(mem_total_mb{dev=\usr\local\bin}) gt 0",
+                                                         expression="avg(cpu.idle_perc{dev=\usr\local\bin}) gt 0",
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
         
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
-        self.assertEqual("avg(mem_total_mb{dev=\usr\local\bin}) gt 0", body['expression'])
+        self.assertEqual("avg(cpu.idle_perc{dev=\usr\local\bin}) gt 0", body['expression'])
 
         # Delete alarm and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
@@ -304,14 +316,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Create an alarm
         alarm_def_name = data_utils.rand_name('monitoring_alarm')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="avg(mem_total_mb{dev=!@#$%^&*}) gt 0",
+                                                         expression="avg(cpu.idle_perc{dev=!@#$%^&*}) gt 0",
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
         
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
-        self.assertEqual("avg(mem_total_mb{dev=!@#$%^&*}) gt 0", body['expression'])
+        self.assertEqual("avg(cpu.idle_perc{dev=!@#$%^&*}) gt 0", body['expression'])
 
         # Delete alarm and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
@@ -326,6 +338,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_list_alarm_by_def_id(self):
         # Test case to create alarm definition with notification method
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -338,18 +351,24 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Create an alarm definition
         alarm_def_name = data_utils.rand_name('monitoring_alarm_definition')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="mem_total_mb > 0",
+                                                         expression="cpu.idle_perc > 0",
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
         
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
-        self.assertEqual("mem_total_mb > 0", body['expression'])
+        self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(60)
-        # List alarm using alarm definition id
-        body = self.monitoring_client.get_alarms_by_def_id(alarm_def_id)
+        # List alarms based on alarm_definition_id
+        while count < 30 :
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
+        alarm_id = body['elements'][0]['id']
         self.assertEqual('200', body.response['status'])
 
         # Delete alarm definition and verify if deleted
@@ -365,7 +384,8 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
     @test.attr(type="gate")
     def test_list_alarm_by_metric_name(self):
-        # Test case to create alarm definition with notification method
+        # Test case to list alarm by metric name
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -387,10 +407,18 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(60)
-        # List alarm using metric name
-        body = self.monitoring_client.get_alarms_by_metric_name("cpu.idle_perc")
+        # List alarms based on alarm_definition_id
+        while count < 30 :
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
+        body = self.monitoring_client.list_alarms(metric_name="cpu.idle_perc")
         self.assertEqual('200', body.response['status'])
+        alarm_name = body['elements'][0]['metrics'][0]['name']
+        self.assertEqual('cpu.idle_perc', alarm_name)
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
@@ -404,7 +432,8 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
     @test.attr(type="gate")
     def test_list_alarm_by_metric_name_and_dimension(self):
-        # Test case to create alarm definition with notification method
+        # Test case to list alarm by metric name and dimension
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -426,10 +455,19 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(60)
+        # List alarms based on alarm_definition_id
+        while count < 30 :
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
         # List alarm using metric name
         body = self.monitoring_client.get_alarms_by_metric_dimensions("cpu.idle_perc","service:monitoring")
         self.assertEqual('200', body.response['status'])
+        alarm_name = body['elements'][0]['metrics'][0]['name']
+        self.assertEqual('cpu.idle_perc', alarm_name)
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
@@ -444,6 +482,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_list_alarm_by_state(self):
         # Test case to create alarm definition with notification method
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -465,7 +504,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(120)
+        # List alarms based on alarm_definition_id
+        while count < 30:
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
         # List alarm using state
         body = self.monitoring_client.get_alarms_by_state(alarm_def_id, "ALARM")
         self.assertEqual('200', body.response['status'])
@@ -483,6 +529,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_get_delete_the_specified_alarm(self):
         # create alarm definition with notification method
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -504,7 +551,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(30)
+        # List alarms based on alarm_definition_id
+        while count < 30:
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
         # List alarm using alarm def id
         body = self.monitoring_client.get_alarms_by_def_id(alarm_def_id)
         self.assertEqual('200', body.response['status'])
@@ -533,7 +587,8 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
     @test.attr(type="gate")
     def test_update_the_specified_alarm(self):
-        # create alarm definition with notification method
+        # Test to update a specified alarm
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -555,7 +610,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(60)
+        # List alarms based on alarm_definition_id
+        while count < 30:
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
         # List alarm using alarm def id
         body = self.monitoring_client.get_alarms_by_def_id(alarm_def_id)
         self.assertEqual('200', body.response['status'])
@@ -579,6 +641,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_alarms_history_state(self):
         # create alarm definition with notification method
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -591,16 +654,24 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Create an alarm definition
         alarm_def_name = data_utils.rand_name('monitoring_alarm_definition')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="cpu.idle_perc > 0",
-                                                         alarm_actions = notification_id,
-                                                         ok_actions = notification_id,
-                                                         severity="LOW")
+                                                              expression="cpu.idle_perc > 0",
+                                                              alarm_actions = notification_id,
+                                                              ok_actions = notification_id,
+                                                              severity="LOW")
         
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(70)
+        # List alarms based on alarm_definition_id
+        while count < 30:
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
+
         # List alarm using alarm def id
         body = self.monitoring_client.get_alarms_by_def_id(alarm_def_id)
         self.assertEqual('200', body.response['status'])
@@ -609,7 +680,6 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Update specific alarm
         body = self.monitoring_client.update_alarm(alarm_id, state="OK")
         self.assertEqual('200', body.response['status'])
-        time.sleep(70)
 
         # Get alarms state history
         body = self.monitoring_client.get_alarms_state_history_by_dimensions("service:monitoring")
@@ -630,6 +700,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_alarms_history_state_by_start_end_time(self):
         # create alarm definition with notification method
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -651,7 +722,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(70)
+        # List alarms based on alarm_definition_id
+        while count < 30:
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
         # List alarm using alarm def id
         body = self.monitoring_client.get_alarms_by_def_id(alarm_def_id)
         self.assertEqual('200', body.response['status'])
@@ -660,7 +738,6 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Update specific alarm
         body = self.monitoring_client.update_alarm(alarm_id, state="OK")
         self.assertEqual('200', body.response['status'])
-        time.sleep(70)
 
         # Get alarms state history
         current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -681,6 +758,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_alarm_history_state_by_alarm_id(self):
         # create alarm definition with notification method
+        count = 0
         notification_name = data_utils.rand_name('notification-')
         notification_type = 'EMAIL'
         u_address = 'root@localhost'
@@ -702,7 +780,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
-        time.sleep(70)
+        # List alarms based on alarm_definition_id
+        while count < 30:
+            body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm state is not created.")
         # List alarm using alarm def id
         body = self.monitoring_client.get_alarms_by_def_id(alarm_def_id)
         self.assertEqual('200', body.response['status'])
@@ -711,10 +796,18 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Update specific alarm
         body = self.monitoring_client.update_alarm(alarm_id, state="OK")
         self.assertEqual('200', body.response['status'])
-        time.sleep(70)
+        # List alarm state history based on alarm_definition_id
+        while count < 30:
+            body = self.monitoring_client.get_alarm_state_history_by_alarm_id(alarm_id)
+            if len(body['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(body['elements']), 0, "Alarm state is not updated.")
 
         # Get alarms state history
-        body = self.monitoring_client.get_alarm_state_history_by_alarm_id(alarm_id)
+
+        print body
         self.assertEqual('200', body.response['status'])
         self.assertTrue('old_state' in body['elements'][0].keys(), body['elements'][0].keys())
         self.assertTrue('new_state' in body['elements'][0].keys(), body['elements'][0].keys())
