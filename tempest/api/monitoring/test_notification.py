@@ -117,9 +117,13 @@ class MonitoringNotificationTestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_notification_list(self):
         # List notifications
-        body = self.monitoring_client.list_notifications()
-        # print response['links']
-        # self.assertEqual(200, resp.status)
-        # self.assertDictContainsSubset(200, response)
+        params = {}
+        body = self.monitoring_client.list_notifications(params)
         self.assertEqual('200', body.response['status'])
 
+    @test.attr(type="gate")
+    def test_notification_list_offset_limit(self):
+        # List notifications
+        params = {'limit': '100'}
+        body = self.monitoring_client.list_notifications(params)
+        self.assertEqual('200', body.response['status'])

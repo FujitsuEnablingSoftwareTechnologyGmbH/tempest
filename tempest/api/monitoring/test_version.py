@@ -26,5 +26,8 @@ class MonitoringVersionAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_monascaapi_version(self):
         # Get version
-        resp = self.monitoring_client.get_version()
-        self.assertEqual("v2.0", resp['id'])
+        params = {}
+        body = self.monitoring_client.get_version(params)
+        responseBody = json.loads(body.data)
+        self.assertEqual('200', body.response['status'])
+        self.assertEqual("v2.0", responseBody['id'])

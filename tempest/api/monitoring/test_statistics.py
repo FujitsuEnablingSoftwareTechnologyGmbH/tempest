@@ -16,6 +16,7 @@ from tempest_lib import exceptions as lib_exc
 from tempest import test
 from tempest_lib.common.utils import data_utils
 import datetime
+import json
 
 class MonitoringMetricTestJSON(base.BaseMonitoringTest):
     _interface = 'json'
@@ -25,33 +26,29 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
         super(MonitoringMetricTestJSON, cls).setUpClass()
 
     @test.attr(type="gate")
-    def test_metric_statistics_required_option(self):
+    def test_list_metric_statistics_average(self):
         # Create a single metric with only required parameters
-        m_name = "Test_Metric_1"
-        m_value = 1.0 
-        body = self.monitoring_client.create_metric(name=m_name, value=m_value)
-        self.assertEqual('204', body.response['status'])
+        metric_name = "cpu.idle_perc"
         # Get metric statistics
         m_statistics = 'AVG'
-        body = self.monitoring_client.metric_statistics(name=m_name, statistics=m_statistics, merge_metrics="true")
+        body = self.monitoring_client.metric_statistics(name=metric_name, statistics=m_statistics, merge_metrics="true")
         self.assertEqual('200', body.response['status'])
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
+        self.assertEqual(metric_name, response['elements'][0]['name'], "Metric name not listed")
+        self.assertEqual('avg', response['elements'][0]['columns'][1], "Metric name not listed")
 
     @test.attr(type="gate")
-    def test_create_metric_options(self):
+    def test_list_metric_statistics_options(self):
         # Create a single metric with optional 
-        m_name = "Test_Metric_1"
-        m_value = 1.0
-        m_dimension = {
-                      'key1': 'value1',
-                      'key2': 'value2'
-                      }
-        body = self.monitoring_client.create_metric(
-                     name=m_name, m_value=m_value, dimensions=m_dimension)
-        self.assertEqual('204', body.response['status'])
+        metric_name = "cpu.idle_perc"
         # Get metric statics
         m_statistics = 'avg,min,max,count,sum'
         m_endtime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         m_endtime = m_endtime.replace(' ', 'T') + 'Z'
-        body = self.monitoring_client.list_metric(name=m_name, dimensions=m_dimension,
-                     statistics=m_statistics, end_time=m_endtime)
+        body = self.monitoring_client.metric_statistics(name=metric_name, dimensions='service:monitoring',
+                     statistics=m_statistics, end_time=m_endtime, merge_metrics='true')
         self.assertEqual('200', body.response['status'])
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
+        self.assertEqual(metric_name, response['elements'][0]['name'], "Metric name not listed")

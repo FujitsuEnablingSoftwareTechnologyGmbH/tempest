@@ -1,5 +1,5 @@
 #
-#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
 #
@@ -19,6 +19,7 @@ from tempest import test
 import time
 import json
 
+
 class MonitoringMetricTestJSON(base.BaseMonitoringTest):
     _interface = 'json'
 
@@ -26,11 +27,11 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
     def setUpClass(cls):
         super(MonitoringMetricTestJSON, cls).setUpClass()
 
-    @test.attr(type="gate")
-    def test_metric_list_no_option(self):
-        # List metric w/o parameters
-        body = self.monitoring_client.list_metric_no_option()
-        self.assertEqual('200', body.response['status'])
+    # @test.attr(type="gate")
+    # def test_metric_list_no_option(self):
+    #     # List metric w/o parameters
+    #     body = self.monitoring_client.list_metric_no_option()
+    #     self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")
     def test_metric_list_by_name(self):
@@ -45,31 +46,36 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
     def test_create_metric_required_option(self):
         # Create a single metric with only required parameters
         m_name = "Test_Metric_1"
-        m_value = 1.0
+        m_value = 50.0
         body = self.monitoring_client.create_metric(name=m_name, value=m_value)
         self.assertEqual('204', body.response['status'])
         # Get metric
-        body = self.monitoring_client.list_metric(name=m_name)
+        params = {'name': m_name}
+        body = self.monitoring_client.list_metric(params)
         responseBody = json.loads(body.data)
         self.assertEquals(m_name, responseBody['elements'][0]['name'])
         self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")
     def test_create_metric_options(self):
-        # Create a single metric with optional 
-        # m_name = data_utils.rand_name('metric')
+        # Create a single metric with optional properties
         m_name = "Test_Metric_1"
         m_value = 1.0
         m_dimension = {
-                      'key1': 'value1',
-                      'key2': 'value2'
-                      }
-        m_timestamp = int(time.time() - 100)*1000
+            "key1": "value1",
+            "key2": "value2"
+        }
+        m_value_meta = {
+            "key1": "value1",
+            "key2": "value2"
+        }
+        m_timestamp = int(time.time() - 100) * 1000
         body = self.monitoring_client.create_metric(
-                     name=m_name, m_value=m_value, dimensions=m_dimension,timestamp=m_timestamp)
+            name=m_name, m_value=m_value, dimensions=m_dimension, timestamp=m_timestamp, value_meta=m_value_meta)
         self.assertEqual('204', body.response['status'])
         # Get metric
-        body = self.monitoring_client.list_metric(name=m_name, dimensions=m_dimension)
+        params = {'name': m_name,'dimensions': 'key1:value1,key2:value2'}
+        body = self.monitoring_client.list_metric(params)
         self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")
@@ -81,28 +87,31 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
         m_name2 = "Test_Metric_2"
         m_value2 = 1.0
         m_dimension2 = {
-                      'key1': 'value1',
-                      'key2': 'value2'
-                      }
-        m_timestamp2 = int(time.time() - 100)*1000
+            'key1': 'value1',
+            'key2': 'value2'
+        }
+        m_timestamp2 = int(time.time() - 100) * 1000
         body = self.monitoring_client.create_multiple_metric(name1=m_name1, m_value1=m_value1,
-                     name2=m_name2, m_value2=m_value2,dimensions2=m_dimension2,timestamp2=m_timestamp2)
+                                                             name2=m_name2, m_value2=m_value2, dimensions2=m_dimension2,
+                                                             timestamp2=m_timestamp2)
         self.assertEqual('204', body.response['status'])
 
     @test.attr(type="gate")
     def test_metric_list(self):
         # List metric w/o parameters
-        body = self.monitoring_client.list_metric()
+        params = {}
+        body = self.monitoring_client.list_metric(params)
         self.assertEqual('200', body.response['status'])
-        
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
+
     @test.attr(type="gate")
-    def test_create_metric_special_char(self):
-        # Create a single metric with only required parameters
-        m_name = data_utils.rand_name('metric') + '!@#$%^&*()'
-        m_value = 1.0 
-        body = self.monitoring_client.create_metric(name=m_name, value=m_value)
-        self.assertEqual('204', body.response['status'])
+    def test_list_metric_with_limit_offset(self):
+        # List metric with limit and offset
         # Get metric
-        body = self.monitoring_client.list_metric(name=m_name)
+        params = {'offset': '5', 'limit': '10'}
+        body = self.monitoring_client.list_metric(params)
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
         self.assertEqual('200', body.response['status'])
 

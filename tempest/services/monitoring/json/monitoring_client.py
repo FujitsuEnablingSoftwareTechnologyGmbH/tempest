@@ -35,20 +35,20 @@ class MonitoringClientJSON(service_client.ServiceClient):
     def serialize(self, body):
         return json.dumps(body)
 
-    def helper_list(self, uri, query=None, period=None):
-        uri_dict = {}
-        if query:
-            uri_dict = {'q.field': query[0],
-                        'q.op': query[1],
-                        'q.value': query[2]}
-        if period:
-            uri_dict['period'] = period
-        if uri_dict:
-            uri += "?%s" % urllib.urlencode(uri_dict)
-        resp, body = self.get(uri)
-        self.expected_success(200, resp.status)
-        body = self.deserialize(body)
-        return service_client.ResponseBody(resp, body)
+    # def helper_list(self, uri, query=None, period=None):
+    #     uri_dict = {}
+    #     if query:
+    #         uri_dict = {'q.field': query[0],
+    #                     'q.op': query[1],
+    #                     'q.value': query[2]}
+    #     if period:
+    #         uri_dict['period'] = period
+    #     if uri_dict:
+    #         uri += "?%s" % urllib.urlencode(uri_dict)
+    #     resp, body = self.get(uri)
+    #     self.expected_success(200, resp.status)
+    #     body = self.deserialize(body)
+    #     return service_client.ResponseBody(resp, body)
 
     def create_alarm_definition(self, **kwargs):
         uri = "/alarm-definitions/"
@@ -58,9 +58,12 @@ class MonitoringClientJSON(service_client.ServiceClient):
         body = self.deserialize(body)
         return service_client.ResponseBody(resp, body)
 
-    def list_alarm_definitions(self, query=None):
-        uri = '/alarm-definitions'
-        return self.helper_list(uri, query)
+    def list_alarm_definitions(self, params=None):
+        url = '/alarm-definitions'
+        url += '?%s' % urllib.urlencode(params)
+        resp, body = self.get(url)
+        self.expected_success(200, resp.status)
+        return service_client.ResponseBodyData(resp, body)
 
     def get_alarm_definition(self, alarm_def_id):
         uri = '/alarm-definitions/%s' % alarm_def_id
@@ -208,9 +211,12 @@ class MonitoringClientJSON(service_client.ServiceClient):
         body = self.deserialize(body)
         return service_client.ResponseBody(resp, body)
 
-    def list_notifications(self, query=None):
-        uri = '/notification-methods'
-        return self.helper_list(uri, query)
+    def list_notifications(self, params=None):
+        url = '/notification-methods'
+        url += '?%s' % urllib.urlencode(params)
+        resp, body = self.get(url)
+        self.expected_success(200, resp.status)
+        return service_client.ResponseBodyData(resp, body)
 
     def create_notification(self, **kwargs):
         """Create a notification."""
@@ -287,21 +293,28 @@ class MonitoringClientJSON(service_client.ServiceClient):
         self.expected_success(200, resp.status)
         return service_client.ResponseBodyData(resp, body)
 
-    def list_metric(self, **kwargs):
+    def list_metric(self, params=None):
         """List metric."""
         url = '/metrics'
-        m_name = kwargs.get('name', None)
-        m_dimension = kwargs.get('dimensions', None)
-        if m_name is not None:
-           url  += '?name=' + m_name
-        if m_dimension is not None:
-           keylist = m_dimension.keys()
-           dimension = ''
-           for index, key in enumerate(keylist):
-               dimension += key + ':' + str(m_dimension.get(key))
-               if index < len(keylist)-1:
-                   dimension += ','
-           url += '&dimensions=' + dimension
+        # m_name = kwargs.get('name', None)
+        # m_dimension = kwargs.get('dimensions', None)
+        # m_limit = kwargs.get('limit', None)
+        # m_offset = kwargs.get('offset', None)
+        # if m_name is not None:
+        #    url  += '?name=' + m_name
+        # if m_dimension is not None:
+        #    keylist = m_dimension.keys()
+        #    dimension = ''
+        #    for index, key in enumerate(keylist):
+        #        dimension += key + ':' + str(m_dimension.get(key))
+        #        if index < len(keylist)-1:
+        #            dimension += ','
+        #    url += '&dimensions=' + dimension
+        # if m_limit is not None:
+        #     url += '&limit=' + str(m_limit)
+        # if m_offset is not None:
+        #     url += '&offset=' + str(m_offset)
+        url += '?%s' % urllib.urlencode(params)
         resp, body = self.get(url)
         self.expected_success(200, resp.status)
         return service_client.ResponseBodyData(resp, body)
@@ -314,11 +327,13 @@ class MonitoringClientJSON(service_client.ServiceClient):
         m_value = kwargs.get('value', None)
         m_dimension = kwargs.get('dimensions', None)
         m_timestamp = kwargs.get('timestamp', int(time.time()*1000))
+        m_value_meta = kwargs.get('value_meta', None)
         post_body = {
             'name': m_name,
             'value': m_value,
             'dimensions': m_dimension,
-            'timestamp': m_timestamp
+            'timestamp': m_timestamp,
+            'value_meta': m_value_meta
         }
         post_body = json.dumps(post_body)
         resp, body = self.post(url, post_body)
@@ -330,44 +345,52 @@ class MonitoringClientJSON(service_client.ServiceClient):
         m_name1 = kwargs.get('name1', None)
         m_value1 = kwargs.get('value1', None)
         m_dimension1 = kwargs.get('dimensions1', None)
+        m_value_meta1 = kwargs.get('value_meta', None)
         m_timestamp1 = kwargs.get('timestamp1', int(time.time()*1000))
+
         post_body1 = {
             'name': m_name1,
             'value': m_value1,
             'dimensions': m_dimension1,
-            'timestamp': m_timestamp1
+            'timestamp': m_timestamp1,
+            'value_meta': m_value_meta1
         }
         post_body1 = json.dumps(post_body1)
         m_name2 = kwargs.get('name2', None)
         m_value2 = kwargs.get('value2', None)
         m_dimension2 = kwargs.get('dimensions2', None)
+        m_value_meta2 = kwargs.get('value_meta', None)
         m_timestamp2 = kwargs.get('timestamp2', int(time.time()*1000))
         post_body2 = {
             'name': m_name2,
             'value': m_value2,
             'dimensions': m_dimension2,
-            'timestamp': m_timestamp2
+            'timestamp': m_timestamp2,
+            'value_meta': m_value_meta2
         }
         post_body2 = json.dumps(post_body2)
         m_array = '[' + post_body1 + ',' + post_body2 + ']'
-        print m_array
         resp, body = self.post(url, m_array)
         return service_client.ResponseBody(resp, body)
 
-    def get_version(self, query=None):
+    def get_version(self, params=None):
         """List monasca api version."""
-        uri = '/'
-        return self.helper_list(uri, query)
+        url = '/'
+        url += '?%s' % urllib.urlencode(params)
+        resp, body = self.get(url)
+        self.expected_success(200, resp.status)
+        return service_client.ResponseBodyData(resp, body)
 
     def metric_measurement(self, **kwargs):
         """List a metric measurement."""
         url = '/metrics/measurements'
-        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S')
+        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
         default_starttime = default_starttime.replace(' ', 'T') + 'Z'
         m_name = kwargs.get('name', None)
         m_dimension = kwargs.get('dimensions', None)
         m_start_time = kwargs.get('start_time', default_starttime)
         m_end_time = kwargs.get('end_time', None)
+        m_period = kwargs.get('period', None)
         m_limit = kwargs.get('limit', None)
         m_merge_metrics = kwargs.get('merge_metrics', None)
         url += '?start_time=' + m_start_time
@@ -383,6 +406,8 @@ class MonitoringClientJSON(service_client.ServiceClient):
             url += '&dimensions=' + dimension
         if m_end_time is not None:
             url += '&end_time=' + m_end_time
+        if m_period is not None:
+            url += '&period=' + str(m_period)
         if m_limit is not None:
             url += '&limit=' + m_limit
         if m_merge_metrics is not None:
@@ -393,7 +418,7 @@ class MonitoringClientJSON(service_client.ServiceClient):
     def metric_statistics(self, **kwargs):
         """List a metric statistics."""
         url = '/metrics/statistics'
-        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S')
+        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
         default_starttime = default_starttime.replace(' ', 'T') + 'Z'
         m_name = kwargs.get('name', None)
         m_dimension = kwargs.get('dimensions', None)
@@ -401,18 +426,24 @@ class MonitoringClientJSON(service_client.ServiceClient):
         m_end_time = kwargs.get('end_time', None)
         m_statistics = kwargs.get('statistics', None)
         m_period = kwargs.get('period', 300)
+        m_offset = kwargs.get('offset', None)
+        m_limit = kwargs.get('limit', None)
         m_merge_metrics = kwargs.get('merge_metrics', None)
         url += '?name=' + m_name + '&statistics=' + m_statistics + '&start_time=' + m_start_time
         if m_dimension is not None:
-            keylist = m_dimension.keys()
-            dimension = ''
-            for index, key in enumerate(keylist):
-                dimension += key + ':' + str(m_dimension.get(key))
-                if index < len(keylist)-1:
-                    dimension += ','
+            # keylist = m_dimension.keys()
+            # dimension = ''
+            # for index, key in enumerate(keylist):
+            #     dimension += key + ':' + str(m_dimension.get(key))
+            #     if index < len(keylist)-1:
+            #         dimension += ','
             url += '&dimensions=' + m_dimension
         if m_end_time is not None:
             url += '&end_time=' + m_end_time
+        if m_offset is not None:
+            url += '&offset=' + m_offset
+        if m_limit is not None:
+            url += '&limit=' + m_limit
         if m_period is not None:
             url += '&period=' + str(m_period)
         if m_merge_metrics is not None:

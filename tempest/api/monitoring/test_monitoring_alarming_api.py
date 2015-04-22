@@ -16,6 +16,7 @@ from tempest.api.monitoring import base
 from tempest_lib.common.utils import data_utils
 from tempest_lib import exceptions as lib_exc
 from tempest import test
+import json
 
 
 
@@ -32,11 +33,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_alarm_definition_list(self):
         # Test to check if all alarms definitions are listed
-        alarm_def_list = self.monitoring_client.list_alarm_definitions()
-        self.assertEqual('200', alarm_def_list.response['status'])
+        params = {}
+        body = self.monitoring_client.list_alarm_definitions(params)
+        self.assertEqual('200', body.response['status'])
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
 
         # Verify created alarm in the list
-        fetched_ids = [a['id'] for a in alarm_def_list['elements']]
+        fetched_ids = [a['id'] for a in response['elements']]
         missing_alarms = [a for a in self.alarm_def_ids if a not in fetched_ids]
         self.assertEqual(0, len(missing_alarms),
                          "Failed to find the following created alarm(s)"
@@ -807,7 +811,6 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Get alarms state history
 
-        print body
         self.assertEqual('200', body.response['status'])
         self.assertTrue('old_state' in body['elements'][0].keys(), body['elements'][0].keys())
         self.assertTrue('new_state' in body['elements'][0].keys(), body['elements'][0].keys())
