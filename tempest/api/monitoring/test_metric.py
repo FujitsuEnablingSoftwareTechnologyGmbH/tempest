@@ -18,6 +18,7 @@ from tempest_lib import exceptions as lib_exc
 from tempest import test
 import time
 import json
+import time
 
 
 class MonitoringMetricTestJSON(base.BaseMonitoringTest):
@@ -45,20 +46,28 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
     @test.attr(type="gate")
     def test_create_metric_required_option(self):
         # Create a single metric with only required parameters
+        count = 0
         m_name = "Test_Metric_1"
         m_value = 50.0
         body = self.monitoring_client.create_metric(name=m_name, value=m_value)
         self.assertEqual('204', body.response['status'])
         # Get metric
         params = {'name': m_name}
-        body = self.monitoring_client.list_metric(params)
-        responseBody = json.loads(body.data)
+        while count < 30 :
+            body = self.monitoring_client.list_metric(params)
+            responseBody = json.loads(body.data)
+            if len(responseBody['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(responseBody['elements']), 0, "Metric is not listed.")
         self.assertEquals(m_name, responseBody['elements'][0]['name'])
         self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")
     def test_create_metric_options(self):
         # Create a single metric with optional properties
+        count = 0
         m_name = "Test_Metric_1"
         m_value = 1.0
         m_dimension = {
@@ -75,7 +84,15 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
         self.assertEqual('204', body.response['status'])
         # Get metric
         params = {'name': m_name,'dimensions': 'key1:value1,key2:value2'}
-        body = self.monitoring_client.list_metric(params)
+        while count < 30 :
+            body = self.monitoring_client.list_metric(params)
+            responseBody = json.loads(body.data)
+            if len(responseBody['elements']) > 0:
+                break
+            time.sleep(2)
+            count += 1
+        self.assertGreater(len(responseBody['elements']), 0, "Metric is not listed.")
+        self.assertEquals(m_name, responseBody['elements'][0]['name'])
         self.assertEqual('200', body.response['status'])
 
     @test.attr(type="gate")
@@ -114,4 +131,3 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
         response = json.loads(body.data)
         self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
         self.assertEqual('200', body.response['status'])
-

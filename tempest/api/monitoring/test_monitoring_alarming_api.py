@@ -320,14 +320,14 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         # Create an alarm
         alarm_def_name = data_utils.rand_name('monitoring_alarm')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="avg(cpu.idle_perc{dev=!@#$%^&*}) gt 0",
+                                                         expression="avg(cpu.idle_perc{dev=!@#$%^*}) gt 0",
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
         
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
-        self.assertEqual("avg(cpu.idle_perc{dev=!@#$%^&*}) gt 0", body['expression'])
+        self.assertEqual("avg(cpu.idle_perc{dev=!@#$%^*}) gt 0", body['expression'])
 
         # Delete alarm and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
