@@ -191,7 +191,7 @@ class MonitoringClientJSON(service_client.ServiceClient):
 
     def get_alarms_state_history_by_dimensions_and_time(self, **kwargs):
         uri = '/alarms/state-history'
-        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
+        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=2880)).strftime('%Y-%m-%d %H:%M:%S')
         default_starttime = default_starttime.replace(' ', 'T') + 'Z'
         m_dimension = kwargs.get('dimensions', None)
         m_start_time = kwargs.get('start_time', default_starttime)
@@ -384,7 +384,7 @@ class MonitoringClientJSON(service_client.ServiceClient):
     def metric_measurement(self, **kwargs):
         """List a metric measurement."""
         url = '/metrics/measurements'
-        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
+        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=2880)).strftime('%Y-%m-%d %H:%M:%S')
         default_starttime = default_starttime.replace(' ', 'T') + 'Z'
         m_name = kwargs.get('name', None)
         m_dimension = kwargs.get('dimensions', None)
@@ -418,7 +418,7 @@ class MonitoringClientJSON(service_client.ServiceClient):
     def metric_statistics(self, **kwargs):
         """List a metric statistics."""
         url = '/metrics/statistics'
-        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
+        default_starttime = (datetime.datetime.now() - datetime.timedelta(minutes=2880)).strftime('%Y-%m-%d %H:%M:%S')
         default_starttime = default_starttime.replace(' ', 'T') + 'Z'
         m_name = kwargs.get('name', None)
         m_dimension = kwargs.get('dimensions', None)

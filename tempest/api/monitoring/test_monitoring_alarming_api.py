@@ -279,31 +279,31 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
         # Create an alarm
         alarm_def_name = data_utils.rand_name('monitoring_alarm')
         body = self.monitoring_client.create_alarm_definition(name=alarm_def_name,
-                                                         expression="avg(cpu.idle_perc{dev=\usr\local\bin}) gt 0",
+                                                         expression="avg(cpu.idle_perc{dev=/usr/local/bin}) gt 0",
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
-        self.assertEqual("avg(cpu.idle_perc{dev=\usr\local\bin}) gt 0", body['expression'])
+        self.assertEqual("avg(cpu.idle_perc{dev=/usr/local/bin}) gt 0", body['expression'])
 
         # Delete alarm and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_create_alarm_with_specialchar_in_expression(self):
@@ -313,7 +313,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -324,20 +324,20 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("avg(cpu.idle_perc{dev=!@#$%^*}) gt 0", body['expression'])
 
         # Delete alarm and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_list_alarm_by_def_id(self):
@@ -348,7 +348,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -359,7 +359,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -377,13 +377,13 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
 
     @test.attr(type="gate")
@@ -395,7 +395,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -406,7 +406,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -426,13 +426,13 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_list_alarm_by_metric_name_and_dimension(self):
@@ -443,7 +443,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -454,7 +454,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -475,13 +475,13 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_list_alarm_by_state(self):
@@ -492,7 +492,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -503,7 +503,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -522,13 +522,13 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_get_delete_the_specified_alarm(self):
@@ -539,7 +539,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -550,7 +550,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -575,19 +575,19 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm and verify if deleted
         self.monitoring_client.delete_alarm(alarm_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm, alarm_id)
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_update_the_specified_alarm(self):
@@ -598,7 +598,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -609,7 +609,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -634,13 +634,13 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_alarms_history_state(self):
@@ -651,7 +651,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -662,7 +662,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                               alarm_actions = notification_id,
                                                               ok_actions = notification_id,
                                                               severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -693,13 +693,13 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_alarms_history_state_by_start_end_time(self):
@@ -710,7 +710,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -721,7 +721,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -751,13 +751,13 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @test.attr(type="gate")
     def test_alarm_history_state_by_alarm_id(self):
@@ -768,7 +768,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         u_address = 'root@localhost'
 
         body = self.monitoring_client.create_notification(name=notification_name, type=notification_type, address=u_address)
-        
+
         self.assertEqual(notification_name, body['name'])
         notification_id = body['id']
 
@@ -779,7 +779,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
                                                          alarm_actions = notification_id,
                                                          ok_actions = notification_id,
                                                          severity="LOW")
-        
+
         self.assertEqual(alarm_def_name, body['name'])
         alarm_def_id = body['id']
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
@@ -817,13 +817,13 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
 
         # Delete alarm definition and verify if deleted
         self.monitoring_client.delete_alarm_definition(alarm_def_id)
-        
+
         self.assertRaises(lib_exc.NotFound,
                           self.monitoring_client.get_alarm_definition, alarm_def_id)
 
         # Delete notification
         self.monitoring_client.delete_notification(notification_id)
-        
+
 
     @classmethod
     def resource_cleanup(cls):

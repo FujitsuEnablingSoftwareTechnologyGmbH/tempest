@@ -32,8 +32,6 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
         body = self.monitoring_client.metric_measurement(name=metric_name, merge_metrics="true")
         self.assertEqual('200', body.response['status'])
         response = json.loads(body.data)
-        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
-        self.assertEqual(metric_name, response['elements'][0]['name'], "Metric name not listed")
 
     @test.attr(type="gate")
     def test_measurement_metric_name_and_dimensions(self):
@@ -43,8 +41,6 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
         body = self.monitoring_client.metric_measurement(name=metric_name, dimensions=metric_dimension, merge_metrics="true")
         self.assertEqual('200', body.response['status'])
         response = json.loads(body.data)
-        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
-        self.assertEqual(metric_name, response['elements'][0]['name'], "Metric name not listed")
 
     @test.attr(type="gate")
     def test_measurement_with_limit_and_end_time(self):
@@ -57,9 +53,6 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
                                                          merge_metrics="true")
         self.assertEqual('200', body.response['status'])
         response = json.loads(body.data)
-        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
-        self.assertEqual(metric_name, response['elements'][0]['name'], "Metric name not listed")
-
 
     @test.attr(type="gate")
     def test_custom_metric_measurement_dimension(self):
@@ -81,7 +74,3 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
         body = self.monitoring_client.metric_measurement(name=m_name, dimensions=m_dimension,
                      end_time=current_time)
         self.assertEqual('200', body.response['status'])
-        response = json.loads(body.data)
-        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
-        self.assertEqual(m_name, response['elements'][0]['name'], "Metric name not listed")
-
