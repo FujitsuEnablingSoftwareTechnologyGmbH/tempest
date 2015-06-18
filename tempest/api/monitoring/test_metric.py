@@ -97,7 +97,7 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
 
     @test.attr(type="gate")
     def test_create_multiple_metric(self):
-        # Create multiple metrics 
+        # Create multiple metrics
         # m_name1 = data_utils.rand_name('metric')
         m_name1 = "Test_Metric_1"
         m_value1 = 1.0
@@ -123,10 +123,10 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
         self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
 
     @test.attr(type="gate")
-    def test_list_metric_with_limit_offset(self):
+    def test_list_metric_with_limit(self):
         # List metric with limit and offset
         # Get metric
-        params = {'offset': '5', 'limit': '10'}
+        params = {'limit': '10'}
         body = self.monitoring_client.list_metric(params)
         response = json.loads(body.data)
         self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
