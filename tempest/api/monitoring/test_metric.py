@@ -28,12 +28,6 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
     def setUpClass(cls):
         super(MonitoringMetricTestJSON, cls).setUpClass()
 
-    # @test.attr(type="gate")
-    # def test_metric_list_no_option(self):
-    #     # List metric w/o parameters
-    #     body = self.monitoring_client.list_metric_no_option()
-    #     self.assertEqual('200', body.response['status'])
-
     @test.attr(type="gate")
     def test_metric_list_by_name(self):
         # List metric by metric name
@@ -131,3 +125,88 @@ class MonitoringMetricTestJSON(base.BaseMonitoringTest):
         response = json.loads(body.data)
         self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
         self.assertEqual('200', body.response['status'])
+
+    @test.attr(type="gate")
+    def test_list_metric_by_dimensions(self):
+        # List metric with limit and offset
+        # Get metric
+        params = {'dimensions': 'service:monitoring'}
+        body = self.monitoring_client.list_metric(params)
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
+        self.assertEqual('200', body.response['status'])
+
+
+    @test.attr(type="gate")
+    def test_list_metric_with_offset(self):
+        # List metric with limit and offset
+        # Get metric
+        params = {'limit': '10'}
+        body = self.monitoring_client.list_metric(params)
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
+        self.assertEqual('200', body.response['status'])
+        offset = response['elements'][9]['id']
+        params = {'offset': offset}
+        body = self.monitoring_client.list_metric(params)
+        response = json.loads(body.data)
+        self.assertEqual('200', body.response['status'])
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
+
+    @test.attr(type="gate")
+    def test_list_metric_with_offset_limit(self):
+        # List metric with limit and offset
+        # Get metric
+        params = {'limit': '10'}
+        body = self.monitoring_client.list_metric(params)
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
+        self.assertEqual('200', body.response['status'])
+        offset = response['elements'][9]['id']
+        params = {'limit': '10', 'offset': offset}
+        body = self.monitoring_client.list_metric(params)
+        response = json.loads(body.data)
+        self.assertEqual('200', body.response['status'])
+        self.assertGreater(len(response['elements']), 0, "Metric list is empty.")
+
+    @test.attr(type="gate")
+    def test_metric_names(self):
+        # List metric names
+        params = {}
+        body = self.monitoring_client.list_metric_names(params)
+        self.assertEqual('200', body.response['status'])
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric names list is empty.")
+
+    @test.attr(type="gate")
+    def test_metric_names_by_dimensions(self):
+        # List metric names by dimensions
+        params = {'dimensions': 'service:monitoring'}
+        body = self.monitoring_client.list_metric_names(params)
+        self.assertEqual('200', body.response['status'])
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Metric names list is empty.")
+
+    # @test.attr(type="gate")
+    # def test_metric_names_by_offset_limit(self):
+    #     # List metric names with limit
+    #     params = {'limit': '5'}
+    #     body = self.monitoring_client.list_metric_names(params)
+    #     self.assertEqual('200', body.response['status'])
+    #     response = json.loads(body.data)
+    #     self.assertGreater(len(response['elements']), 0, "Metric names list is empty.")
+    #     offset_id = response['elements'][4]['id']
+    #
+    #     # List metric names with limit and offset
+    #     params = {'limit': '10', 'offset' : offset_id}
+    #     body = self.monitoring_client.list_metric_names(params)
+    #     self.assertEqual('200', body.response['status'])
+    #     response = json.loads(body.data)
+    #     self.assertGreater(len(response['elements']), 0, "Metric names list is empty.")
+    #
+    #     # List metric names with offset
+    #     params = {'offset' : offset_id}
+    #     body = self.monitoring_client.list_metric_names(params)
+    #     self.assertEqual('200', body.response['status'])
+    #     response = json.loads(body.data)
+    #     self.assertGreater(len(response['elements']), 0, "Metric names list is empty.")

@@ -32,6 +32,7 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
         body = self.monitoring_client.metric_measurement(name=metric_name, merge_metrics="true")
         self.assertEqual('200', body.response['status'])
         response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Measurement list is empty.")
 
     @test.attr(type="gate")
     def test_measurement_metric_name_and_dimensions(self):
@@ -41,6 +42,7 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
         body = self.monitoring_client.metric_measurement(name=metric_name, dimensions=metric_dimension, merge_metrics="true")
         self.assertEqual('200', body.response['status'])
         response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Measurement list is empty.")
 
     @test.attr(type="gate")
     def test_measurement_with_limit_and_end_time(self):
@@ -53,6 +55,7 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
                                                          merge_metrics="true")
         self.assertEqual('200', body.response['status'])
         response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Measurement list is empty.")
 
     @test.attr(type="gate")
     def test_custom_metric_measurement_dimension(self):
@@ -74,3 +77,22 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
         body = self.monitoring_client.metric_measurement(name=m_name, dimensions=m_dimension,
                      end_time=current_time)
         self.assertEqual('200', body.response['status'])
+
+    @test.attr(type="gate")
+    def test_measurement_with_limit_offset_and_end_time(self):
+        # List metric measurement with metric name, limit, offset and end time
+        metric_name = 'cpu.idle_perc'
+        current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_time = current_time.replace(' ', 'T') + 'Z'
+        m_limit = 5
+        body = self.monitoring_client.metric_measurement(name=metric_name, end_time=current_time, limit=str(m_limit),
+                                                         merge_metrics="true")
+        self.assertEqual('200', body.response['status'])
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Measurement list is empty.")
+        offset_id = response['elements'][0]['measurements'][4][0]
+        body = self.monitoring_client.metric_measurement(name=metric_name, end_time=current_time, limit=str(m_limit),
+                                                         merge_metrics="true", offset=offset_id)
+        self.assertEqual('200', body.response['status'])
+        response = json.loads(body.data)
+        self.assertGreater(len(response['elements']), 0, "Measurement list is empty.")

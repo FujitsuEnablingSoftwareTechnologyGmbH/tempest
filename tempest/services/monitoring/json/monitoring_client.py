@@ -293,6 +293,16 @@ class MonitoringClientJSON(service_client.ServiceClient):
         self.expected_success(200, resp.status)
         return service_client.ResponseBodyData(resp, body)
 
+    def list_metric_names(self, params=None):
+        """List metric."""
+        url = '/metrics/names'
+        url += '?%s' % urllib.urlencode(params)
+        resp, body = self.get(url)
+        self.expected_success(200, resp.status)
+        return service_client.ResponseBodyData(resp, body)
+
+
+
     def list_metric(self, params=None):
         """List metric."""
         url = '/metrics'
@@ -392,6 +402,7 @@ class MonitoringClientJSON(service_client.ServiceClient):
         m_end_time = kwargs.get('end_time', None)
         m_period = kwargs.get('period', None)
         m_limit = kwargs.get('limit', None)
+        m_offset = kwargs.get('offset', None)
         m_merge_metrics = kwargs.get('merge_metrics', None)
         url += '?start_time=' + m_start_time
         if m_name is not None:
@@ -408,6 +419,8 @@ class MonitoringClientJSON(service_client.ServiceClient):
             url += '&end_time=' + m_end_time
         if m_period is not None:
             url += '&period=' + str(m_period)
+        if m_offset is not None:
+            url += '&offset=' + m_offset
         if m_limit is not None:
             url += '&limit=' + m_limit
         if m_merge_metrics is not None:
