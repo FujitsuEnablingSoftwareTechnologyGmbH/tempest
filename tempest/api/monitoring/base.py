@@ -18,6 +18,7 @@ from tempest_lib import exceptions as lib_exc
 from tempest import clients
 from tempest import config
 from tempest import exceptions
+from tempest.common import cred_provider
 from tempest_lib.common.rest_client import logging
 
 from oslo_utils import timeutils
@@ -101,3 +102,25 @@ class BaseMonitoringTest(tempest.test.BaseTestCase):
             'Sample for metric:%s with query:%s has not been added to the '
             'database within %d seconds' % (metric, query,
                                             CONF.compute.build_timeout))
+
+
+class BaseLogsTestCase(tempest.test.BaseTestCase):
+
+    """Base test case class for all Monitoring API tests."""
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseLogsTestCase, cls).setup_credentials()
+        cls.admin_os = clients.Manager(cred_provider.get_configured_credentials('identity_admin'))
+        cls.os = clients.Manager()
+
+    @classmethod
+    def resource_setup(cls):
+        if not CONF.service_available.logs:
+             raise cls.skipException("Monasca logs support is required")
+        super(BaseLogsTestCase, cls).resource_setup()
+        cls._interface = 'json'
+
+        cls.logs_client = cls.os.logs_client
+        cls.logs_search_client = cls.admin_os.logs_search_client
+
