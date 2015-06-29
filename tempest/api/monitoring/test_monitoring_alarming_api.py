@@ -73,7 +73,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_def_id = body['id']
 
         # List alarms based on alarm_definition_id
-        while count < 30 :
+        while count < 60 :
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -365,7 +365,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30 :
+        while count < 60 :
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -412,7 +412,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30 :
+        while count < 60 :
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -460,7 +460,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30 :
+        while count < 60 :
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -509,7 +509,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30:
+        while count < 60:
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -556,7 +556,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30:
+        while count < 60:
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -615,7 +615,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30:
+        while count < 60:
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -668,7 +668,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30:
+        while count < 60:
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -727,7 +727,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30:
+        while count < 60:
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -785,7 +785,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         self.assertEqual("cpu.idle_perc > 0", body['expression'])
 
         # List alarms based on alarm_definition_id
-        while count < 30:
+        while count < 60:
             body = self.monitoring_client.list_alarms(alarm_definition_id=alarm_def_id)
             if len(body['elements']) > 0:
                 break
@@ -801,7 +801,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         body = self.monitoring_client.update_alarm(alarm_id, state="OK")
         self.assertEqual('200', body.response['status'])
         # List alarm state history based on alarm_definition_id
-        while count < 30:
+        while count < 60:
             body = self.monitoring_client.get_alarm_state_history_by_alarm_id(alarm_id)
             if len(body['elements']) > 0:
                 break
