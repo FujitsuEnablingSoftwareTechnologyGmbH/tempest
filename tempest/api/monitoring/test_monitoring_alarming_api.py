@@ -81,7 +81,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
             count += 1
         self.assertGreater(len(body['elements']), 0, "Alarm is not created.")
         alarm_id = body['elements'][0]['id']
-        body = self.monitoring_client.update_alarm(alarm_id, state="UNDETERMINED")
+        body = self.monitoring_client.update_alarm(alarm_id, state="UNDETERMINED", lifecycle_state="OPEN", link="http://pagerduty.com/")
         self.assertEqual("UNDETERMINED", body['state'])
         body = self.monitoring_client.get_alarm(alarm_id)
         self.assertEqual("UNDETERMINED", body['state'])
@@ -628,7 +628,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_id = body['elements'][0]['id']
 
         # Update specific alarm
-        body = self.monitoring_client.update_alarm(alarm_id, state="OK")
+        body = self.monitoring_client.update_alarm(alarm_id, state="OK", lifecycle_state="OPEN", link="http://pagerduty.com/")
         self.assertEqual('200', body.response['status'])
 
 
@@ -682,7 +682,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_id = body['elements'][0]['id']
 
         # Update specific alarm
-        body = self.monitoring_client.update_alarm(alarm_id, state="OK")
+        body = self.monitoring_client.update_alarm(alarm_id, state="OK", lifecycle_state="OPEN", link="http://pagerduty.com/")
         self.assertEqual('200', body.response['status'])
 
         # Get alarms state history
@@ -740,7 +740,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_id = body['elements'][0]['id']
 
         # Update specific alarm
-        body = self.monitoring_client.update_alarm(alarm_id, state="OK")
+        body = self.monitoring_client.update_alarm(alarm_id, state="OK", lifecycle_state="OPEN", link="http://pagerduty.com/")
         self.assertEqual('200', body.response['status'])
 
         # Get alarms state history
@@ -798,7 +798,7 @@ class MonitoringAlarmingAPITestJSON(base.BaseMonitoringTest):
         alarm_id = body['elements'][0]['id']
 
         # Update specific alarm
-        body = self.monitoring_client.update_alarm(alarm_id, state="OK")
+        body = self.monitoring_client.update_alarm(alarm_id, state="OK", lifecycle_state="OPEN", link="http://pagerduty.com/")
         self.assertEqual('200', body.response['status'])
         # List alarm state history based on alarm_definition_id
         while count < 60:
