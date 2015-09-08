@@ -136,6 +136,7 @@ from tempest.services.volume.v2.json.snapshots_client import \
 from tempest.services.volume.v2.json.volumes_client import VolumesV2ClientJSON
 from tempest.services.monitoring.json.monitoring_client import \
     MonitoringClientJSON
+from tempest.services.monitoring.json.logs_client import LogsClient, LogsSearchClientJSON
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
@@ -230,11 +231,26 @@ class Manager(manager.Manager):
             **self.default_params_with_timeout_values)
         self.negative_client = negative_rest_client.NegativeRestClient(
             self.auth_provider, service, **self.default_params)
+
         self.monitoring_client = MonitoringClientJSON(
             self.auth_provider,
             CONF.monitoring.catalog_type,
             CONF.identity.region,
             CONF.monitoring.endpoint_type,
+            **self.default_params)
+
+        self.logs_client = LogsClient(
+            self.auth_provider,
+            CONF.logs.service_type,
+            CONF.identity.region,
+            CONF.logs.endpoint_type,
+            **self.default_params)
+
+        self.logs_search_client = LogsSearchClientJSON(
+            self.auth_provider,
+            CONF.logs_search.service_type,
+            CONF.identity.region,
+            CONF.logs_search.endpoint_type,
             **self.default_params)
 
         # Generating EC2 credentials in tempest is only supported

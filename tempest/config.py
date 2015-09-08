@@ -805,6 +805,33 @@ MonitoringGroup = [
                help="The endpoint type to use for the monitoring service.")
 ]
 
+logs_group = cfg.OptGroup(name='logs',
+                               title='Logs Service Options')
+
+LogsGroup = [
+    cfg.StrOpt('service_type',
+               default='logs',
+               help="Catalog type of the Monitoring log service."),
+    cfg.StrOpt('endpoint_type',
+               default='publicURL',
+               choices=['public', 'admin', 'internal',
+                        'publicURL', 'adminURL', 'internalURL'],
+               help="The endpoint type to use for the monitoring log service.")
+]
+
+logs_search_group = cfg.OptGroup(name='logs_search',
+                               title='Logs Search Service Options')
+
+LogsSearchGroup = [
+    cfg.StrOpt('service_type',
+               default='logs-search',
+               help="Catalog type of the Monitoring log search service."),
+    cfg.StrOpt('endpoint_type',
+               default='publicURL',
+               choices=['public', 'admin', 'internal',
+                        'publicURL', 'adminURL', 'internalURL'],
+               help="The endpoint type to use for the monitoring log search service.")
+]
 
 dashboard_group = cfg.OptGroup(name="dashboard",
                                title="Dashboard options")
@@ -1017,6 +1044,9 @@ ServiceAvailableGroup = [
     cfg.BoolOpt('monasca',
                 default=True,
                 help="Whether or not monasca is expected to be available"),
+    cfg.BoolOpt('logs',
+                default=True,
+                help="Whether or not logs is expected to be available"),
 ]
 
 debug_group = cfg.OptGroup(name="debug",
@@ -1167,7 +1197,9 @@ _opts = [
     (input_scenario_group, InputScenarioGroup),
     (cli_group, CLIGroup),
     (negative_group, NegativeGroup),
-    (monitoring_group, MonitoringGroup)
+    (monitoring_group, MonitoringGroup),
+    (logs_group, LogsGroup),
+    (logs_search_group, LogsSearchGroup)
 ]
 
 
@@ -1237,6 +1269,7 @@ class TempestConfigPrivate(object):
         _CONF.set_default('alt_domain_name', self.identity.admin_domain_name,
                           group='identity')
         self.monitoring = _CONF.monitoring
+        self.logs = _CONF.logs
 
     def __init__(self, parse_conf=True, config_path=None):
         """Initialize a configuration from a conf directory and conf file."""
