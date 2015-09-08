@@ -32,6 +32,9 @@ CONF = config.CONF
 
 class LogsClient(service_client.ServiceClient):
 
+    version = '2.0'
+    uri_prefix = "/v%s" % version
+
     def send_single_log(self, msg, headers=None):
 
         default_headers = {
@@ -42,7 +45,7 @@ class LogsClient(service_client.ServiceClient):
             default_headers.update(headers)
 
         uri = "/log/single"
-        resp, body = self.post(uri, msg, headers)
+        resp, body = self.post(self._uri(uri), msg, headers)
         self.expected_success(204, resp.status)
         return resp, body
 
