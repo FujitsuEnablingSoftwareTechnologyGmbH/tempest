@@ -36,16 +36,13 @@ class LogsClient(service_client.ServiceClient):
     uri_prefix = "/v%s" % version
 
     def send_single_log(self, msg, headers=None):
-
         default_headers = {
             'X-Tenant-Id': 'b4265b0a48ae4fd3bdcee0ad8c2b6012',
             'X-Roles': 'admin'
         }
-        if headers:
-            default_headers.update(headers)
-
+        default_headers.update(headers)
         uri = "/log/single"
-        resp, body = self.post(self._uri(uri), msg, headers)
+        resp, body = self.post(self._uri(uri), msg, default_headers)
         self.expected_success(204, resp.status)
         return resp, body
 

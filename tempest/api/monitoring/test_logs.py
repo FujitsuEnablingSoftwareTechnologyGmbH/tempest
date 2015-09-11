@@ -36,6 +36,12 @@ class Waiter(base.BaseLogsTestCase):
         self.assertEqual(0, self.logs_search_client.count_search_messages(sid),
                          'Find log message in elasticsearch: {0}'.format(sid))
 
+        if not headers:
+            headers = dict()
+
+        if 'Content-Type' not in headers:
+            headers['Content-Type'] = 'application/json'
+            message = json.dumps(dict(message=message))
         self.logs_client.send_single_log(message, headers)
 
         # wait - retry every 1 sec with timeout 10 sec
@@ -50,7 +56,10 @@ class LogsApiTestJSON(base.BaseLogsTestCase):
     _interface = 'json'
 
     def test_single_log(self):
-        response, _ = self.logs_client.send_single_log('test logs')
+        message = json.dumps(dict(message='test logs'))
+        headers = dict()
+        headers['Content-Type'] = 'application/json'
+        response, _ = self.logs_client.send_single_log(message, headers)
         self.assertEqual('204', response['status'])
 
 
@@ -74,12 +83,6 @@ class SingleLogConnection(Waiter):
     def test_big_message(self):
         self.run_and_wait(*_generate_unique_message(size=90000))
 
-    def test_json(self):
-        sid, message = _generate_unique_message()
-        message = json.dumps({"message": message, "from": "hoover"})
-        headers = {'Content-Type': 'application/json'}
-        self.run_and_wait(sid, message, headers)
-
     def test_multiline(self):
         sid, message = _generate_unique_message()
         self.run_and_wait(sid, message.replace(' ', '\n'))
@@ -90,23 +93,12 @@ class SingleLogConnection(Waiter):
         response = self.run_and_wait(sid, message, headers)
         self.assertEqual('application-type-test', response[0]['_source']['application_type'])
 
-    def test_not_set_header_application_type(self):
-        sid, message = _generate_unique_message()
-        headers = {}
-        response = self.run_and_wait(sid, message, headers)
-        self.assertEqual('', response[0]['_source']['application_type'])
-
-    def test_not_set_header_dimensions(self):
-        sid, message = _generate_unique_message()
-        headers = {}
-        response = self.run_and_wait(sid, message, headers)
-        self.assertEqual('', response[0]['_source']['dimensions'])
-
     def test_send_header_dimensions(self):
         sid, message = _generate_unique_message()
-        headers = {'X-Dimensions': 'applicationname:WebServer01,environment:production'}
+        headers = {'X-Dimensions': 'server:WebServer01,environment:production'}
         response = self.run_and_wait(sid, message, headers)
-        self.assertEqual('{"environment":"production","applicationname":"WebServer01"}', response[0]['_source']['dimensions'])
+        self.assertEqual('production', response[0]['_source']['environment'])
+        self.assertEqual('WebServer01', response[0]['_source']['server'])
 
 
 def _generate_unique_message(message=None, size=50):
