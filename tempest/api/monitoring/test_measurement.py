@@ -69,7 +69,7 @@ class MonitoringMeasurementAPITestJSON(base.BaseMonitoringTest):
                       }
         m_timestamp = int(time.time() - 100)*1000
         body = self.monitoring_client.create_metric(
-                     name=m_name, m_value=m_value, dimensions=m_dimension,timestamp=m_timestamp)
+                     name=m_name, value=m_value, dimensions=m_dimension,timestamp=m_timestamp)
         self.assertEqual('204', body.response['status'])
         # List measurement
         current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
